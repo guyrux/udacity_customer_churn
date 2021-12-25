@@ -1,0 +1,22 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+scikit-learn = "*"
+shap = "*"
+pyarrow = "*"
+matplotlib = "*"
+seaborn = "*"
+
+[dev-packages]
+pip = "*"
+install = "*"
+pylint = "*"
+autopep8 = "*"
+ipykernel = "*"
+flake8 = "*"
+
+[requires]
+python_version = "3.9"
