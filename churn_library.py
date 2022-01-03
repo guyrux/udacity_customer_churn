@@ -1,4 +1,3 @@
-# library doc string
 '''This module has all custom methods to use in this project.
 '''
 
@@ -9,9 +8,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
-import shap
 
-from sklearn.preprocessing import normalize
 from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier
@@ -23,13 +20,14 @@ config = ConfigParser()
 config.read('settings.ini')
 
 EXTERNAL_DATA_PATH = config.get('FOLDERS', 'external_data')
+INTERIM_DATA_PATH = config.get('FOLDERS', 'interim_data')
 MODEL_PATH = config.get('FOLDERS', 'models')
 EDA_PATH = config.get('FOLDERS', 'eda')
 RESULT_PATH = config.get('FOLDERS', 'results')
 RANDON_STATE = 42
 
 
-def import_data(pth):
+def import_data(pth: str = './data/external/bank_data.csv') -> pd.DataFrame:
     '''
     returns dataframe for the csv found at pth
     input:
@@ -37,7 +35,10 @@ def import_data(pth):
     output:
             df: pandas dataframe
     '''
-    return pd.read_csv(pth)
+    try:
+        return pd.read_csv(pth, index_col=0)
+    except FileNotFoundError:
+        return 'File not found'
 
 
 def perform_eda(df):
@@ -58,17 +59,17 @@ def perform_eda(df):
         plt.figure(figsize=figsize)
         plt.title(f'Histogram {item}', size=font_size)
         df[item].hist()
-        plt.savefig(f'histogram_{item.lower()}.png', bbox_inches='tight')
+        plt.savefig(EDA_PATH + f'histogram_{item.lower()}.png', bbox_inches='tight')
 
     plt.figure(figsize=figsize)
     plt.title('Distplot Total_Trans_Ct', size=font_size)
     sns.histplot(df['Total_Trans_Ct'], kde=True)
-    plt.savefig('distplot Total_Trans_Ct.png', bbox_inches='tight')
+    plt.savefig(EDA_PATH + 'distplot Total_Trans_Ct.png', bbox_inches='tight')
 
     plt.figure(figsize=figsize)
     plt.title('Heatmap', size=font_size)
     sns.heatmap(df.corr(), annot=False, cmap='Dark2_r', linewidths=1)
-    plt.savefig('heatmap.png', bbox_inches='tight')
+    plt.savefig(EDA_PATH + 'heatmap.png', bbox_inches='tight')
 
 
 def encoder_helper(df, category_lst, response: str = None) -> None:
@@ -82,6 +83,7 @@ def encoder_helper(df, category_lst, response: str = None) -> None:
     output:
             df: pandas dataframe with new columns for
     '''
+
     df_temp = df.copy()
     df_temp['Churn'] = df_temp['Attrition_Flag'].apply(lambda val: 0 if val == "Existing Customer" else 1)
 
@@ -120,7 +122,7 @@ def perform_feature_engineering(df, response: str = None) -> pd.DataFrame:
 
     X[keep_cols] = df[keep_cols]
 
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=RANDON_STATE)
 
     return X_train, X_test, y_train, y_test
 
@@ -160,10 +162,10 @@ def classification_report_image(
         plt.rc('figure', figsize=(5, 5))
         plt.text(0.01, 1.25, str(f'{model} Train'), {'fontsize': 10}, fontproperties='monospace')
         plt.text(0.01, 0.05, str(classification_report(y_test, y_test_preds)), {
-                 'fontsize': 10}, fontproperties='monospace')  # approach improved by OP -> monospace!
+            'fontsize': 10}, fontproperties='monospace')  # approach improved by OP -> monospace!
         plt.text(0.01, 0.6, str(f'{model} Test'), {'fontsize': 10}, fontproperties='monospace')
         plt.text(0.01, 0.7, str(classification_report(y_train, y_train_preds)), {
-                 'fontsize': 10}, fontproperties='monospace')  # approach improved by OP -> monospace!
+            'fontsize': 10}, fontproperties='monospace')  # approach improved by OP -> monospace!
         plt.axis('off')
 
         plt.savefig(f'classification_reports_{model.lower().join("_")}.png', bbox_inches='tight')
@@ -174,6 +176,8 @@ def feature_importance_plot(model: np.array, X_data: pd.DataFrame = None, output
     creates and stores the feature importances in pth
     input:
         model: model object containing feature_importances_
+            If model is a Random Forest, uses model.feature_importances_
+            If model is a logistic regression, uses model.coef_[0]
         X_data: pandas dataframe of X values
         output_pth: path to store the figure
 
@@ -235,8 +239,9 @@ def train_models(X_train, X_test, y_train, y_test):
 
     plt.figure(figsize=(15, 8))
     ax = plt.gca()
-    plot_roc_curve(cv_rfc.best_estimator_, X_test, y_test, ax=ax, alpha=0.8)
-    lrc_plot = plot_roc_curve(lrc, X_test, y_test)
-    lrc_plot.plot(ax=ax, alpha=0.8)
+    lrc_plot = plot_roc_curve(lrc, X_test, y_test, ax=ax)
+    rfc_plot = plot_roc_curve(cv_rfc.best_estimator_, X_test, y_test, alpha=0.8, ax=ax)
+    # lrc_plot.plot(ax=ax, alpha=0.8)
+    # rfc_plot.plot(ax=ax, alpha=0.9)
     plt.title('ROC', size=font_size)
-    plt.savefig('roc.png', bbox_inches='tight')
+    plt.savefig(RESULT_PATH + 'roc.png', bbox_inches='tight')

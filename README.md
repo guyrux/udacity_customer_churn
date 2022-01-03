@@ -3,9 +3,12 @@
 # Predict Customer Churn
 
 - Project **Predict Customer Churn** of ML DevOps Engineer Nanodegree Udacity
+
 ## Project Description
 
 This is the first project of the ML DevOps Engineer Nanodegree Udacity.
+
+![sample image](./images/sample.gif)
 
 ## Running Files
 

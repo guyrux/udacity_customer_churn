@@ -9,6 +9,7 @@ shap = "*"
 pyarrow = "*"
 matplotlib = "*"
 seaborn = "*"
+streamlit = "*"
 
 [dev-packages]
 pip = "*"
