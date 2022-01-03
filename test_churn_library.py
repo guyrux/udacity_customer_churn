@@ -127,15 +127,12 @@ def test_train_models():
 
     # TODO: Check if images were saved. São 5 imagens.
     # lst_images = [
-    #     'roc.png', 'shap.png', 'feature_importance.png', 'classification_reports_rf.png', 'classification_reports_lr.png'
+    #     'roc.png', 'classification_reports_rf.png', 'classification_reports_lr.png'
     # ]
 
     # for image in lst_images:
     #     assert os.path.isfile(MODEL_PATH + image)
     #     logging.info(f'Testing results - {image}: SUCCESS.')
-
-
-
 
 
 if __name__ == "__main__":

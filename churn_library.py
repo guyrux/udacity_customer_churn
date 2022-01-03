@@ -28,6 +28,7 @@ EDA_PATH = config.get('FOLDERS', 'eda')
 RESULT_PATH = config.get('FOLDERS', 'results')
 RANDON_STATE = 42
 
+
 def import_data(pth):
     '''
     returns dataframe for the csv found at pth
@@ -157,16 +158,18 @@ def classification_report_image(
             y_train_preds = y_train_preds_rf
 
         plt.rc('figure', figsize=(5, 5))
-        plt.text(0.01, 1.25, str(f'{model} Train'), {'fontsize': 10}, fontproperties = 'monospace')
-        plt.text(0.01, 0.05, str(classification_report(y_test, y_test_preds)), {'fontsize': 10}, fontproperties = 'monospace') # approach improved by OP -> monospace!
-        plt.text(0.01, 0.6, str(f'{model} Test'), {'fontsize': 10}, fontproperties = 'monospace')
-        plt.text(0.01, 0.7, str(classification_report(y_train, y_train_preds)), {'fontsize': 10}, fontproperties = 'monospace') # approach improved by OP -> monospace!
-        plt.axis('off');
+        plt.text(0.01, 1.25, str(f'{model} Train'), {'fontsize': 10}, fontproperties='monospace')
+        plt.text(0.01, 0.05, str(classification_report(y_test, y_test_preds)), {
+                 'fontsize': 10}, fontproperties='monospace')  # approach improved by OP -> monospace!
+        plt.text(0.01, 0.6, str(f'{model} Test'), {'fontsize': 10}, fontproperties='monospace')
+        plt.text(0.01, 0.7, str(classification_report(y_train, y_train_preds)), {
+                 'fontsize': 10}, fontproperties='monospace')  # approach improved by OP -> monospace!
+        plt.axis('off')
 
         plt.savefig(f'classification_reports_{model.lower().join("_")}.png', bbox_inches='tight')
 
 
-def feature_importance_plot(model: str = 'lr', X_data: pd.DataFrame = None, output_pth: str = RESULT_PATH) -> None:
+def feature_importance_plot(model: np.array, X_data: pd.DataFrame = None, output_pth: str = RESULT_PATH) -> None:
     '''
     creates and stores the feature importances in pth
     input:
@@ -177,14 +180,8 @@ def feature_importance_plot(model: str = 'lr', X_data: pd.DataFrame = None, outp
     output:
         None
     '''
-    rfc_model = joblib.load('../models/rfc_model.pkl')
-    lr_model = joblib.load('../models/logistic_model.pkl')
 
-    # Calculate feature importances
-    if model == 'lr':
-        importances = lr_model.coef_[0]
-    else:
-        importances = rfc_model.best_estimator_.feature_importances_
+    importances = model
 
     # Sort feature importances in descending order
     indices = np.argsort(importances)[::-1]
@@ -193,14 +190,14 @@ def feature_importance_plot(model: str = 'lr', X_data: pd.DataFrame = None, outp
     names = [X_data.columns[i] for i in indices]
 
     # Create plot
-    plt.figure(figsize=(20,5))
+    plt.figure(figsize=(20, 5))
     # Create plot title
     plt.title("Feature Importance", size=20)
     plt.ylabel('Importance')
     # Add bars
     plt.bar(range(X_data.shape[1]), importances[indices])
     # Add feature names as x-axis labels
-    plt.xticks(range(X_data.shape[1]), names, rotation=90);
+    plt.xticks(range(X_data.shape[1]), names, rotation=90)
     plt.savefig(f'{output_pth}feature_importance_{model}.png', bbox_inches='tight')
 
 
@@ -238,9 +235,8 @@ def train_models(X_train, X_test, y_train, y_test):
 
     plt.figure(figsize=(15, 8))
     ax = plt.gca()
+    plot_roc_curve(cv_rfc.best_estimator_, X_test, y_test, ax=ax, alpha=0.8)
     lrc_plot = plot_roc_curve(lrc, X_test, y_test)
-    rfc_disp = plot_roc_curve(cv_rfc.best_estimator_, X_test, y_test, ax=ax, alpha=0.8)
     lrc_plot.plot(ax=ax, alpha=0.8)
     plt.title('ROC', size=font_size)
     plt.savefig('roc.png', bbox_inches='tight')
-
