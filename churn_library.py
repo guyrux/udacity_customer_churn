@@ -24,6 +24,8 @@ INTERIM_DATA_PATH = config.get('FOLDERS', 'interim_data')
 MODEL_PATH = config.get('FOLDERS', 'models')
 EDA_PATH = config.get('FOLDERS', 'eda')
 RESULT_PATH = config.get('FOLDERS', 'results')
+CAT_LST = config.get('VARIABLES', 'cat_columns').split(', ')
+QUANT_LST = config.get('VARIABLES', 'quant_columns').split(', ')
 RANDON_STATE = 42
 
 
@@ -51,20 +53,20 @@ def perform_eda(df):
     '''
     figsize = (20, 5)
     font_size = 20
-    lst_category = ['Churn', 'Customer_Age']
 
     df['Churn'] = df['Attrition_Flag'].apply(lambda val: 0 if val == "Existing Customer" else 1)
 
-    for item in lst_category:
+    for item in CAT_LST:
         plt.figure(figsize=figsize)
-        plt.title(f'Histogram {item}', size=font_size)
-        df[item].hist()
-        plt.savefig(EDA_PATH + f'histogram_{item.lower()}.png', bbox_inches='tight')
+        plt.title(f'Proportion - {item}', size=font_size)
+        df[item].value_counts('normalize').plot(kind='bar')
+        plt.savefig(EDA_PATH + f'proportion_{item.lower()}.png', bbox_inches='tight')
 
-    plt.figure(figsize=figsize)
-    plt.title('Distplot Total_Trans_Ct', size=font_size)
-    sns.histplot(df['Total_Trans_Ct'], kde=True)
-    plt.savefig(EDA_PATH + 'distplot Total_Trans_Ct.png', bbox_inches='tight')
+    for item in QUANT_LST:
+        plt.figure(figsize=figsize)
+        plt.title(f'Distplot {item}', size=font_size)
+        sns.histplot(df['Total_Trans_Ct'], kde=True)
+        plt.savefig(EDA_PATH + f'distplot_{item.lower()}.png', bbox_inches='tight')
 
     plt.figure(figsize=figsize)
     plt.title('Heatmap', size=font_size)
@@ -202,7 +204,7 @@ def feature_importance_plot(model: np.array, X_data: pd.DataFrame = None, output
     plt.bar(range(X_data.shape[1]), importances[indices])
     # Add feature names as x-axis labels
     plt.xticks(range(X_data.shape[1]), names, rotation=90)
-    plt.savefig(f'{output_pth}feature_importance_{model}.png', bbox_inches='tight')
+    plt.savefig(f'{output_pth}feature_importance.png', bbox_inches='tight')
 
 
 def train_models(X_train, X_test, y_train, y_test):
@@ -239,9 +241,12 @@ def train_models(X_train, X_test, y_train, y_test):
 
     plt.figure(figsize=(15, 8))
     ax = plt.gca()
-    lrc_plot = plot_roc_curve(lrc, X_test, y_test, ax=ax)
-    rfc_plot = plot_roc_curve(cv_rfc.best_estimator_, X_test, y_test, alpha=0.8, ax=ax)
+    plot_roc_curve(lrc, X_test, y_test, ax=ax)
+    plot_roc_curve(cv_rfc.best_estimator_, X_test, y_test, alpha=0.8, ax=ax)
     # lrc_plot.plot(ax=ax, alpha=0.8)
     # rfc_plot.plot(ax=ax, alpha=0.9)
     plt.title('ROC', size=font_size)
     plt.savefig(RESULT_PATH + 'roc.png', bbox_inches='tight')
+
+    feature_importance_plot(lrc.coef_[0], X_data=X_train, output_pth=RESULT_PATH + 'lr_')
+    feature_importance_plot(cv_rfc.best_estimator_.feature_importances_, X_data=X_train, output_pth=RESULT_PATH + 'rf_')

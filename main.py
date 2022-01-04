@@ -17,6 +17,8 @@ INTERIM_DATA_PATH = config.get('FOLDERS', 'interim_data')
 MODEL_PATH = config.get('FOLDERS', 'models')
 EDA_PATH = config.get('FOLDERS', 'eda')
 RESULT_PATH = config.get('FOLDERS', 'results')
+CAT_LST = config.get('VARIABLES', 'cat_columns').split(', ')
+QUANT_LST = config.get('VARIABLES', 'quant_columns').split(', ')
 RANDON_STATE = 42
 
 category_lst = [
@@ -41,8 +43,17 @@ if st.checkbox('Show EDA'):
     lst_file = glob.glob(EDA_PATH + '*.png')
 
     # Show all png files from EDA folder
-    for file in lst_file:
-        st.image(file)
+    st.subheader('Categorical plots:')
+    for image in [file for file in lst_file if 'proportion' in file]:
+        st.image(image)
+
+    st.subheader('Quantitative plots:')
+    for image in [file for file in lst_file if 'distplot' in file]:
+        st.image(image)
+
+    st.subheader('Bivariate plot:')
+    for image in [file for file in lst_file if 'heatmap' in file]:
+        st.image(image)
 
 # Show/hide model prediction
 if st.checkbox('Show churn prediction'):

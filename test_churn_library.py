@@ -1,11 +1,12 @@
 from configparser import ConfigParser
 import logging
+import glob
 import os
 
 import pandas as pd
 
 from churn_library import (
-    import_data, encoder_helper, perform_feature_engineering, train_models
+    import_data, encoder_helper, perform_feature_engineering, train_models, perform_eda
 )
 
 # import churn_library_solution as cls
@@ -54,11 +55,25 @@ def test_import():
         raise err
 
 
-# def test_eda(perform_eda):
-#     '''
-#     test perform eda function
-#     '''
-#     pass
+def test_eda():
+    '''
+    test perform eda function
+    '''
+    try:
+        df = import_data(EXTERNAL_DATA_PATH + 'bank_data.csv')
+        logging.info("Testing import_data: SUCCESS")
+    except FileNotFoundError as err:
+        logging.error("Testing import_eda: The file wasn't found")
+        raise err
+
+    try:
+        perform_eda(df)
+        lst_file = glob.glob(EDA_PATH + '*.png')
+        assert len(lst_file) == 21
+        logging.info("Testing perform_eda: SUCCESS")
+    except AssertionError as err:
+        logging.error(f"Testing perform_eda: The number of files was different from 21. Actual: {len(lst_file)}")
+
 
 
 def test_encoder_helper():
@@ -77,7 +92,11 @@ def test_encoder_helper():
         assert len(df_output.columns) == len(df.columns) + len(category_lst) + 1
         logging.info("Testing encoder_helper: SUCCESS")
     except AssertionError as err:
-        logging.error("Testing encoder_helper: The encoder do NOT returned the correct number of columns.")
+        logging.error(f"""
+        Testing encoder_helper: The encoder do NOT returned the correct number of columns.
+        Expected: {len(df.columns) + len(category_lst) + 1}
+        Actual: {len(df_output.columns)}
+        """)
         raise err
 
 
@@ -137,4 +156,6 @@ def test_train_models():
 
 if __name__ == "__main__":
     test_import()
+    test_encoder_helper()
+    test_perform_feature_engineering()
     test_train_models()

@@ -8,16 +8,36 @@
 
 This is the first project of the ML DevOps Engineer Nanodegree Udacity.
 
-![sample image](./images/sample.gif)
+<table style="width:100%; th, td {
+  border-style: none;
+}">
+  <tr>
+    <td><img src="./images/sample.gif" alt="Kitten" title="A cute kitten" width="450"/></td>
+    <td><p style="word-wrap: break-word">The project was created using the Streamlit as the frontend. In this way is possible to visualize the output easier.</p></td>
+  </tr>
+</table>
 
 ## Running Files
 
+### Using the model:
+
 1. Download the data from [Kaggle's Credit Card customers](https://www.kaggle.com/sakshigoyal7/credit-card-customers), save it in *./data/external/* folder and rename it to **bank_data.csv**.
+
+1. Open a terminal in the root folder and use the following command to initiate the web app in your local machine:
+
+    ```python
+    streamlit run main.py
+    ```
+
+1. Open the *localhost:8501* in your browser.
+
+**IMPORTANT!** Before running the line above, you need to install the project (see the following section).
 
 ## Installing the project
 
-This project uses [***Pipenv***](https://pipenv.pypa.io/en/latest/).
+This project uses [***Pipenv***](https://pipenv.pypa.io/en/latest/). In your root folder, open a terminal and enter:
 
 ```bash
 pip install pipenv
 pipenv install
+```
