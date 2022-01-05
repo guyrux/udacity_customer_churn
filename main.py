@@ -1,5 +1,9 @@
-'''This is the main file from thie project.
-    Using streamlit library it is possible to access the churn library created to this project.
+'''
+This is the main file from thie project.
+Using streamlit library it is possible to access the churn library created to this project.
+
+Author: Gustavo Suto
+Date: 12/2021
 '''
 
 from configparser import ConfigParser

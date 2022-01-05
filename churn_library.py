@@ -1,6 +1,9 @@
-'''This module has all custom methods to use in this project.
 '''
+This module has all custom methods to use in this project.
 
+Author: Gustavo Suto
+Date: 12/2021
+'''
 from configparser import ConfigParser
 
 import joblib
@@ -74,7 +77,7 @@ def perform_eda(df):
     plt.savefig(EDA_PATH + 'heatmap.png', bbox_inches='tight')
 
 
-def encoder_helper(df, category_lst, response: str = None) -> None:
+def encoder_helper(df, category_lst, response: str = 'Churn') -> None:
     '''
     helper function to turn each categorical column into a new column with
     propotion of churn for each category - associated with cell 15 from the notebook
@@ -90,10 +93,8 @@ def encoder_helper(df, category_lst, response: str = None) -> None:
     df_temp['Churn'] = df_temp['Attrition_Flag'].apply(lambda val: 0 if val == "Existing Customer" else 1)
 
     for category in category_lst:
-        temp_groups = df_temp.groupby(category).mean()['Churn']
-
-        temp_lst = [temp_groups.loc[val] for val in df_temp[category]]
-        df_temp[f'{category}_Churn'] = temp_lst
+        new_column = str(category) + f'_{response}'
+        df_temp[new_column] = df_temp.groupby(category)["Churn"].transform("mean")
 
     return df_temp
 

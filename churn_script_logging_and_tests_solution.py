@@ -1,3 +1,10 @@
+'''
+This module has some unit tests for the functions in churn_library.py
+
+Author: Gustavo Suto
+Date: 12/2021
+'''
+
 from configparser import ConfigParser
 import logging
 import glob
@@ -59,12 +66,7 @@ def test_eda():
     '''
     test perform eda function
     '''
-    try:
-        df = import_data(EXTERNAL_DATA_PATH + 'bank_data.csv')
-        logging.info("Testing import_data: SUCCESS")
-    except FileNotFoundError as err:
-        logging.error("Testing import_eda: The file wasn't found")
-        raise err
+    df = import_data(EXTERNAL_DATA_PATH + 'bank_data.csv')
 
     try:
         perform_eda(df)
@@ -73,19 +75,14 @@ def test_eda():
         logging.info("Testing perform_eda: SUCCESS")
     except AssertionError as err:
         logging.error(f"Testing perform_eda: The number of files was different from 21. Actual: {len(lst_file)}")
-
+        raise err
 
 
 def test_encoder_helper():
     '''
     test encoder helper
     '''
-    try:
-        df = import_data(EXTERNAL_DATA_PATH + 'bank_data.csv')
-        logging.info("Testing import_data: SUCCESS")
-    except FileNotFoundError as err:
-        logging.error("Testing import_eda: The file wasn't found")
-        raise err
+    df = import_data(EXTERNAL_DATA_PATH + 'bank_data.csv')
 
     try:
         df_output = encoder_helper(df, category_lst)
@@ -104,22 +101,21 @@ def test_perform_feature_engineering():
     '''
     test perform_feature_engineering
     '''
-
     df = import_data("./data/external/bank_data.csv")
-    logging.info("Testing import_data: SUCCESS")
-
     df_output = encoder_helper(df, category_lst)
-    logging.info("Testing encoder_helper: SUCCESS")
 
-    X_train, X_test, y_train, y_test = perform_feature_engineering(df_output)
-    logging.info("Testing perform_feature_engineering: SUCCESS")
-
-    assert len(X_train.columns) == 19
-    assert len(X_test.columns) == 19
-    assert isinstance(X_train, pd.DataFrame)
-    assert isinstance(X_test, pd.DataFrame)
-    assert isinstance(y_train, pd.Series)
-    assert isinstance(y_test, pd.Series)
+    try:
+        X_train, X_test, y_train, y_test = perform_feature_engineering(df_output)
+        assert len(X_train.columns) == 19
+        assert len(X_test.columns) == 19
+        assert isinstance(X_train, pd.DataFrame)
+        assert isinstance(X_test, pd.DataFrame)
+        assert isinstance(y_train, pd.Series)
+        assert isinstance(y_test, pd.Series)
+        logging.info("Testing perform_feature_engineering: SUCCESS")
+    except AssertionError as err:
+        logging.error(f"""Testing perform_feature_engineering: FAILURE. {err}""")
+        raise err
 
 
 def test_train_models():
@@ -128,30 +124,18 @@ def test_train_models():
     '''
 
     df = import_data("./data/external/bank_data.csv")
-    logging.info("Testing import_data: SUCCESS")
-
     df_output = encoder_helper(df, category_lst)
-    logging.info("Testing encoder_helper: SUCCESS")
-
     X_train, X_test, y_train, y_test = perform_feature_engineering(df_output)
-    logging.info("Testing perform_feature_engineering: SUCCESS")
 
-    train_models(X_train, X_test, y_train, y_test)
-
-    lst_model = ['logistic_model.pkl', 'rfc_model.pkl']
-
-    for model in lst_model:
-        assert os.path.isfile(MODEL_PATH + model)
-        logging.info(f'Testing model {model}: SUCCESS.')
-
-    # TODO: Check if images were saved. São 5 imagens.
-    # lst_images = [
-    #     'roc.png', 'classification_reports_rf.png', 'classification_reports_lr.png'
-    # ]
-
-    # for image in lst_images:
-    #     assert os.path.isfile(MODEL_PATH + image)
-    #     logging.info(f'Testing results - {image}: SUCCESS.')
+    try:
+        train_models(X_train, X_test, y_train, y_test)
+        lst_model = ['logistic_model.pkl', 'rfc_model.pkl']
+        for model in lst_model:
+            assert os.path.isfile(MODEL_PATH + model)
+            logging.info(f'Testing train_models - {model}: SUCCESS.')
+    except AssertionError as err:
+        logging.error(f"""Testing train_models: FAILURE. {err}""")
+        raise err
 
 
 if __name__ == "__main__":
