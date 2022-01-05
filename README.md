@@ -15,6 +15,15 @@ This is the first project of the ML DevOps Engineer Nanodegree Udacity.
   </tr>
 </table>
 
+## Installing the project
+
+This project uses [***Pipenv***](https://pipenv.pypa.io/en/latest/). In your root folder, open a terminal and enter:
+
+```bash
+pip install pipenv
+pipenv install
+```
+
 ## Running Files
 
 ### Using the model
@@ -38,12 +47,3 @@ This is the first project of the ML DevOps Engineer Nanodegree Udacity.
     ```bash
     ipython churn_script_logging_and_tests_solution.py
     ```
-
-## Installing the project
-
-This project uses [***Pipenv***](https://pipenv.pypa.io/en/latest/). In your root folder, open a terminal and enter:
-
-```bash
-pip install pipenv
-pipenv install
-```
