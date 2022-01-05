@@ -148,9 +148,10 @@ cython_debug/
 # data
 *.xls*
 *.pqt
+*.log
 # files and folders
 Guide.ipynb
-models/*
-logs/*
 .vscode
 .coverage*
+# Model's binary
+*.pkl
